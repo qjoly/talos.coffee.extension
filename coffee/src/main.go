@@ -43,7 +43,7 @@ func main() {
 
 		tmpl, err := template.ParseFiles(filepath.Join("tmpl", "index.tmpl"))
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "Internal Server Error : "+err.Error(), http.StatusInternalServerError)
 			log.Printf("Error parsing template: %v", err)
 			return
 		}
@@ -55,7 +55,7 @@ func main() {
 
 		err = tmpl.Execute(w, data)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "Internal Server Error : "+err.Error(), http.StatusInternalServerError)
 			log.Printf("Error executing template: %v", err)
 		}
 	})
