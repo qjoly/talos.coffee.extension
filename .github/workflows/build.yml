@@ -1,11 +1,14 @@
 name: Build and Push Docker Images
 
 on:
-  push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      talos_version:
+        description: "Version of Talos"
+        required: true
+      app_version:
+        description: "Version of the application (ghcr.io/qjoly/talos.coffee.extension/app)"
+        required: true
 
 jobs:
   build-and-push:
@@ -16,7 +19,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
 
       - name: Login to registry
         uses: docker/login-action@v3
@@ -32,8 +34,8 @@ jobs:
           images: ghcr.io/qjoly/talos.coffee.extension/app
           tags: |
               type=ref,event=tag
-              type=raw,value=${{ github.head_ref || github.ref_name }}
-              type=raw,value=latest,enable={{is_default_branch}}
+              type=raw,value=${{ github.event.inputs.app_version }}
+              type=raw,value=latest,enable=true
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -45,22 +47,21 @@ jobs:
       - name: Create Installer
         env:
           IMAGE_EXT: ghcr.io/qjoly/talos.coffee.extension/app
-          TALOS_VERSION: v1.8.1
+          TALOS_VERSION: ${{ github.event.inputs.talos_version }}
           ARCH: amd64
           PROFILE: installer
         run: |
           docker run --rm -t -v /dev:/dev --privileged -e GITHUB_TOKEN=${{ secrets.GHCR_PAT }} -v "$PWD/_out:/out" \
             "ghcr.io/siderolabs/imager:${TALOS_VERSION}" --arch "${ARCH}" \
-            --system-extension-image ${IMAGE_EXT} "${PROFILE}"
+            --system-extension-image ${IMAGE_EXT}:${{ github.event.inputs.app_version }} "${PROFILE}"
           docker load -i ./_out/installer-${ARCH}.tar 
-          docker tag ghcr.io/siderolabs/installer:${TALOS_VERSION} ghcr.io/qjoly/talos.coffee.extension/installer:${TALOS_VERSION}-${{ github.ref_name }}
-          docker push ghcr.io/qjoly/talos.coffee.extension/installer:${TALOS_VERSION}-${{ github.ref_name }}
+          docker tag ghcr.io/siderolabs/installer:${TALOS_VERSION} ghcr.io/qjoly/talos.coffee.extension/installer:${TALOS_VERSION}-${{ github.event.inputs.app_version }}
+          docker push ghcr.io/qjoly/talos.coffee.extension/installer:${TALOS_VERSION}-${{ github.event.inputs.app_version }}
     
-      - name: Create Installer
-        # if: startsWith(github.event.ref, 'refs/tags/v')
+      - name: Create ISO
         env:
           IMAGE_EXT: ghcr.io/qjoly/talos.coffee.extension/app
-          TALOS_VERSION: v1.8.1
+          TALOS_VERSION: ${{ github.event.inputs.talos_version }}
           ARCH: amd64
           PROFILE: iso
         run: |
@@ -69,14 +70,12 @@ jobs:
             --system-extension-image ${IMAGE_EXT} "${PROFILE}"
             
       - name: Upload a Build Artifact
-        # if: startsWith(github.event.ref, 'refs/tags/v')
         env:
           IMAGE_EXT: ghcr.io/qjoly/talos.coffee.extension/app
-          TALOS_VERSION: v1.8.1
+          TALOS_VERSION: ${{ github.event.inputs.talos_version }}
           ARCH: amd64
           PROFILE: iso
         uses: actions/upload-artifact@v4.4.3
         with:
           name: "${{ env.TALOS_VERSION }}-${{ env.ARCH }}.iso"
           path: "_out/metal-${{ env.ARCH }}.iso"
-        
