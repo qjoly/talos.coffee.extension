@@ -37,6 +37,9 @@ jobs:
               type=raw,value=${{ github.event.inputs.app_version }}
               type=raw,value=latest,enable=true
 
+      - name: replace VERSION in ext manifest
+        run: sed -i "s/VERSION/${{ github.event.inputs.app_version }}/g" coffee/manifest.yaml
+        
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

@@ -1,7 +1,7 @@
 version: v1alpha1
 metadata:
   name: coffee
-  version: "v0.0.1"
+  version: "VERSION"
   author: qjoly
   description: We all love coffee...
   compatibility:
