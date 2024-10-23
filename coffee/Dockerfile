@@ -12,4 +12,6 @@ COPY --from=builder /rootfs/usr/local /rootfs/usr/local
 COPY --from=builder /manifest.yaml /
 COPY coffee.yaml /rootfs/usr/local/etc/containers/coffee.yaml
 WORKDIR /rootfs/usr/local/lib/containers/coffee
+COPY ./src/tmpl ./tmpl
+COPY ./src/static ./static
 ENTRYPOINT ["./coffee"]
