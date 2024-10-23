@@ -1,0 +1,9 @@
+version: v1alpha1
+metadata:
+  name: coffee
+  version: "v0.0.1"
+  author: qjoly
+  description: We all love coffee...
+  compatibility:
+    talos:
+      version: ">= v1.7.0"

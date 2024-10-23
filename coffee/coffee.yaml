@@ -1,0 +1,7 @@
+name: coffee
+container:
+  entrypoint: ./coffee
+depends:
+  - network:
+      - addresses
+restart: always
