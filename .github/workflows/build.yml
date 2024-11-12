@@ -41,7 +41,7 @@ jobs:
         run: sed -i "s/VERSION/${{ github.event.inputs.app_version }}/g" coffee/manifest.yaml
         
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: coffee
           push: true
