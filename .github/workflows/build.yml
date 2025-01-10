@@ -78,7 +78,7 @@ jobs:
           TALOS_VERSION: ${{ github.event.inputs.talos_version }}
           ARCH: amd64
           PROFILE: iso
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: "${{ env.TALOS_VERSION }}-${{ env.ARCH }}.iso"
           path: "_out/metal-${{ env.ARCH }}.iso"
